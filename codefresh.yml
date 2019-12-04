@@ -1,0 +1,40 @@
+version: '1.0'
+stages:
+  - prepare
+  - build
+  - deploy
+steps:
+  main_clone:
+    title: 'Cloning main repository...'
+    type: git-clone
+    stage: prepare
+    repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
+    revision: '${{CF_REVISION}}'
+    git: github-1
+  AddDependencies:
+    title: Add the dependencies
+    stage: prepare
+    image: pulumi/pulumi
+    commands:
+      - npm install
+  DryRun:
+    title: Run a preview
+    stage: build
+    image: pulumi/pulumi
+    commands:
+      - pulumi preview --stack dev --non-interactive
+  ApprovalRequest:
+    title: Ask for a validation or validate by default
+    stage: build
+    type: pending-approval
+    timeout:
+      duration: 0.02 # 1min 12sec
+      finalState: approved
+  RunPulumi:
+    title: Deploying
+    stage: deploy
+    image: pulumi/pulumi
+    commands: 
+      - pulumi stack select dev --non-interactive
+      - pulumi stack --non-interactive
+      - pulumi up --non-interactive
