@@ -62,15 +62,6 @@ codefresh_local_context: setup_local_deps
 	codefresh auth create-context platform-engineering --api-key ${CODEFRESH_API_AUTH_TOKEN}
 	cat ~/.cfconfig
 
-
-
-# Register an AWS account access key in Codefresh
-# example: codefresh_aws_account customer="payments" env="uat" aws_access_key_id="your access key" aws_secret_access_key="your secret key"
-.SILENT:
-codefresh_aws_accounts: codefresh_local_context
-	codefresh create context secret "aws_platform_testing" -v AWS_ACCESS_KEY_ID="dummy_key" -v AWS_SECRET_ACCESS_KEY="dummy_value"
-	codefresh create context secret "aws_personal_dev" -v AWS_ACCESS_KEY_ID="AKIAXMSXZOJPVHW6HRL5" -v AWS_SECRET_ACCESS_KEY="qvRZtYRGs1Nrsp/qmrvwu6Ep8u5FOVRYQR1lfpEz"
-
 .SILENT:
 pulumi_stack: new_pulumi_token
 	pulumi new --name ${REPO_NAME} --stack dev --description "EKS cluster + namespace + Nginx" -y
