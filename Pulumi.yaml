@@ -1,4 +1,4 @@
-name: eks-cluster
+name: ${CF_REPO_NAME}
 description: EKS cluster + namespace + Nginx
 runtime: nodejs
 description: EKS cluster example
