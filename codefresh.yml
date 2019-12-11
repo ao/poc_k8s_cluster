@@ -12,15 +12,14 @@ steps:
         stage: prepare
         image: alpine:latest
         commands:
-          - echo '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
-          - echo '${{CF_REVISION}}'
+          - echo ${{main_clone}}
       main_clone:
         title: "Cloning main repository"
         type: git-clone
         stage: prepare
         repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
         revision: '${{CF_REVISION}}'
-        git: github-1
+        git: github
       AddDependencies:
         title: "Add the dependencies"
         stage: prepare
