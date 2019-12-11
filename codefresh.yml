@@ -7,6 +7,13 @@ steps:
   CreateMyPipelineContext:
     type: parallel
     steps:
+      debugging:
+        title: "Output some data"
+        stage: prepare
+        image: alpine:latest
+        commands:
+          - echo '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
+          - echo '${{CF_REVISION}}'
       main_clone:
         title: "Cloning main repository"
         type: git-clone

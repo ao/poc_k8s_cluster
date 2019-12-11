@@ -53,7 +53,7 @@ endef
 ### Main targets
 ###
 update: setup_local_deps
-	$(MAKE) update_dev
+	$(MAKE) update_d ev
 
 # Create and also updates a local context. Account/team specific
 .SILENT:
@@ -61,6 +61,14 @@ codefresh_local_context: setup_local_deps
 	$(eval CODEFRESH_API_AUTH_TOKEN := $(shell 1p get item \"Codefresh PE_API_Auth\" | jq -r '.details.password'))
 	codefresh auth create-context platform-engineering --api-key ${CODEFRESH_API_AUTH_TOKEN}
 	cat ~/.cfconfig
+
+
+
+# Register an AWS account access key in Codefresh shared configuration secrets
+# example: codefresh_aws_account_creds customer="payments" env="uat" aws_access_key_id="your access key" aws_secret_access_key="your secret key"
+.SILENT:
+codefresh_aws_account_creds: codefresh_local_context
+	codefresh create context secret \"aws_${customer}_${env}\" -v AWS_ACCESS_KEY_ID=\"${aws_access_key_id}\" -v AWS_SECRET_ACCESS_KEY=\"${aws_secret_access_key}\"
 
 .SILENT:
 pulumi_stack: new_pulumi_token
