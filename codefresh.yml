@@ -7,12 +7,6 @@ steps:
   CreateMyPipelineContext:
     type: parallel
     steps:
-      debugging:
-        title: "Output some data"
-        stage: prepare
-        image: alpine:latest
-        commands:
-          - echo ${{main_clone}}
       main_clone:
         title: "Cloning main repository"
         type: git-clone
@@ -20,6 +14,12 @@ steps:
         repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
         revision: '${{CF_REVISION}}'
         git: github
+      debugging:
+        title: "Output some data"
+        stage: prepare
+        image: alpine:latest
+        commands:
+          - echo ${{main_clone}}
       AddDependencies:
         title: "Add the dependencies"
         stage: prepare
