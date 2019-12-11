@@ -35,7 +35,7 @@ steps:
           - cf_export AWS_SECRET_ACCESS_KEY=$(codefresh get context aws_personal_dev --output=json | jq -r '.spec.data.AWS_SECRET_ACCESS_KEY')
           - echo cf_export PULUMI_ACCESS_TOKEN=$(codefresh get context pulumi_token_${{CF_REPO_NAME}} --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
           - cf_export PULUMI_ACCESS_TOKEN=$(codefresh get context pulumi_token_${{CF_REPO_NAME}} --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
-          - echo ${PULUMI_ACCESS_TOKEN}
+          - echo $(codefresh get context pulumi_token_${{CF_REPO_NAME}} --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
   DryRun:
     title: "Run a preview"
     stage: build
