@@ -70,15 +70,29 @@ codefresh_local_context: setup_local_deps
 codefresh_aws_account_creds: codefresh_local_context
 	codefresh create context secret \"aws_${customer}_${env}\" -v AWS_ACCESS_KEY_ID=\"${aws_access_key_id}\" -v AWS_SECRET_ACCESS_KEY=\"${aws_secret_access_key}\"
 
+# Create a Pulumi project deploying some templates locally. Keep in mind the '-y' attribute will destroy your stack resources after completion.
+# example: pulumi_stack env="dev"
 .SILENT:
 pulumi_stack: new_pulumi_token
-	pulumi new --name ${REPO_NAME} --stack dev --description "EKS cluster + namespace + Nginx" -y
+	pulumi new --name ${REPO_NAME} --stack ${env} --description "EKS cluster + namespace + Nginx" -y
 
+# Create a Pulumi project. Keep in mind the '-y' attribute will destroy your stack resources after completion.
+# example: force_pulumi_stack env="dev"
 .SILENT:
 force_pulumi_stack: new_pulumi_token
 	mkdir -p quickstart
-	pulumi new --name ${REPO_NAME} --stack dev --description "EKS cluster + namespace + Nginx" -y --dir ./quickstart
+	pulumi new --name ${REPO_NAME} --stack ${env} --description "EKS cluster + namespace + Nginx" -y --dir ./quickstart
 	rm -rf quickstart
+
+# Generate each time a new token which will be set up on your pipeline as a environment variable.
+# Make sure to cleanup via the Pulumi console before to run it again. 
+.SILENT:
+new_pulumi_token: codefresh_local_context
+	REPO_NAME=$(basename `git rev-parse --show-toplevel`)
+	$(eval PULUMI_API_AUTH_TOKEN := $(shell 1p get item \"Pulumi PE_API_Auth\" | jq -r '.details.password'))
+	$(eval NEW_PULUMI_TOKEN := $(shell curl -s -X POST -H "Content-Type: application/json" -H "Authorization: token ${PULUMI_API_AUTH_TOKEN}" -d '{"description":'\"${REPO_NAME}\"'}' https://api.pulumi.com/api/user/tokens?reason=console | jq -r '.tokenValue'))
+	export PULUMI_ACCESS_TOKEN=${NEW_PULUMI_TOKEN}
+	codefresh create context secret "pulumi_token_${REPO_NAME}" -v PULUMI_ACCESS_TOKEN=${NEW_PULUMI_TOKEN}
 
 
 
@@ -90,12 +104,3 @@ setup_local_deps: ; @$(value setup_local_deps)
 
 update_dev:
 	npm install
-
-# Generate each time a new token which will be set up on your pipeline as a environment variable.
-# Make sure to cleanup via the Pulumi console before to run it again. 
-.SILENT:
-new_pulumi_token: codefresh_local_context
-	REPO_NAME=$(basename `git rev-parse --show-toplevel`)
-	$(eval PULUMI_API_AUTH_TOKEN := $(shell 1p get item \"Pulumi PE_API_Auth\" | jq -r '.details.password'))
-	$(eval NEW_PULUMI_TOKEN := $(shell curl -s -X POST -H "Content-Type: application/json" -H "Authorization: token ${PULUMI_API_AUTH_TOKEN}" -d '{"description":'\"${REPO_NAME}\"'}' https://api.pulumi.com/api/user/tokens?reason=console | jq -r '.tokenValue'))
-	codefresh create context secret "pulumi_token_${REPO_NAME}" -v PULUMI_ACCESS_TOKEN=${NEW_PULUMI_TOKEN}
