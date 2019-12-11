@@ -14,12 +14,6 @@ steps:
         repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
         revision: '${{CF_REVISION}}'
         git: github
-      debugging:
-        title: "Output some data"
-        stage: prepare
-        image: alpine:latest
-        commands:
-          - echo '${{main_clone}}'
       AddDependencies:
         title: "Add the dependencies"
         stage: prepare
@@ -33,14 +27,19 @@ steps:
         commands:
           - cf_export AWS_ACCESS_KEY_ID=$(codefresh get context aws_personal_dev --output=json | jq -r '.spec.data.AWS_ACCESS_KEY_ID')
           - cf_export AWS_SECRET_ACCESS_KEY=$(codefresh get context aws_personal_dev --output=json | jq -r '.spec.data.AWS_SECRET_ACCESS_KEY')
-          - echo cf_export PULUMI_ACCESS_TOKEN=$(codefresh get context pulumi_token_${{CF_REPO_NAME}} --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
           - cf_export PULUMI_ACCESS_TOKEN=$(codefresh get context pulumi_token_${{CF_REPO_NAME}} --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
-          - echo $(codefresh get context pulumi_token_${{CF_REPO_NAME}} --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
+  debugging:
+    title: "debugging"
+    stage: prepare
+    image: alpine:latest
+    commands:
+      - 
   DryRun:
     title: "Run a preview"
     stage: build
     image: pulumi/pulumi
     commands:
+      - echo ${PULUMI_ACCESS_TOKEN}
       - pulumi preview --stack dev --non-interactive
   ApprovalRequest:
     title: "Ask for a validation or validate by default"
