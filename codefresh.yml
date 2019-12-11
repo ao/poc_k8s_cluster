@@ -19,7 +19,7 @@ steps:
         stage: prepare
         image: alpine:latest
         commands:
-          - echo ${{main_clone}}
+          - echo '${{main_clone}}'
       AddDependencies:
         title: "Add the dependencies"
         stage: prepare
