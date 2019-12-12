@@ -91,6 +91,7 @@ new_pulumi_token: codefresh_local_context
 	REPO_NAME=$(basename `git rev-parse --show-toplevel`)
 	$(eval PULUMI_API_AUTH_TOKEN := $(shell 1p get item \"Pulumi PE_API_Auth\" | jq -r '.details.password'))
 	$(eval NEW_PULUMI_TOKEN := $(shell curl -s -X POST -H "Content-Type: application/json" -H "Authorization: token ${PULUMI_API_AUTH_TOKEN}" -d '{"description":'\"${REPO_NAME}\"'}' https://api.pulumi.com/api/user/tokens?reason=console | jq -r '.tokenValue'))
+	echo -e '\n' && echo ${NEW_PULUMI_TOKEN} && echo -e '\n'
 	export PULUMI_ACCESS_TOKEN=${NEW_PULUMI_TOKEN}
 	codefresh create context secret "pulumi_token_${REPO_NAME}" -v PULUMI_ACCESS_TOKEN=${NEW_PULUMI_TOKEN}
 

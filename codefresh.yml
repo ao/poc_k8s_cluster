@@ -25,10 +25,9 @@ steps:
         stage: prepare
         image: codefresh/cli
         commands:
-          - cf_export AWS_ACCESS_KEY_ID=$(codefresh get context aws_personal_dev --output=json | jq -r '.spec.data.AWS_ACCESS_KEY_ID')
-          - cf_export AWS_SECRET_ACCESS_KEY=$(codefresh get context aws_personal_dev --output=json | jq -r '.spec.data.AWS_SECRET_ACCESS_KEY')
-          - cf_export PULUMI_ACCESS_TOKEN=$(codefresh get context pulumi_token_${{CF_REPO_NAME}} --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
-          - echo $(codefresh get context pulumi_token_${{CF_REPO_NAME}} --output=json | jq -r '.spec.data')
+          - cf_export AWS_ACCESS_KEY_ID=$(codefresh get context aws_personal_dev --decrypt --output=json | jq -r '.spec.data.AWS_ACCESS_KEY_ID')
+          - cf_export AWS_SECRET_ACCESS_KEY=$(codefresh get context aws_personal_dev --decrypt --output=json | jq -r '.spec.data.AWS_SECRET_ACCESS_KEY')
+          - cf_export PULUMI_ACCESS_TOKEN=$(codefresh get context pulumi_token_${{CF_REPO_NAME}} --decrypt --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
   DryRun:
     title: "Run a preview"
     stage: build
