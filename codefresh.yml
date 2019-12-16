@@ -13,16 +13,15 @@ steps:
     git: github
   CreateMyPipelineContext:
     type: parallel
+    stage: prepare
     steps:
       AddDependencies:
         title: "Add the dependencies"
-        stage: prepare
         image: pulumi/pulumi
         commands:
           - npm install
       ExportConfiguration:
         title: "Prepare the context of your pipeline"
-        stage: prepare
         image: codefresh/cli
         commands:
           - cf_export AWS_ACCESS_KEY_ID=$(codefresh get context aws_personal_dev --decrypt --output=json | jq -r '.spec.data.AWS_ACCESS_KEY_ID')
