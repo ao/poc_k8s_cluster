@@ -28,13 +28,20 @@ steps:
           - cf_export AWS_ACCESS_KEY_ID=$(codefresh get context aws_personal_dev --decrypt --output=json | jq -r '.spec.data.AWS_ACCESS_KEY_ID')
           - cf_export AWS_SECRET_ACCESS_KEY=$(codefresh get context aws_personal_dev --decrypt --output=json | jq -r '.spec.data.AWS_SECRET_ACCESS_KEY')
           - cf_export PULUMI_ACCESS_TOKEN=$(codefresh get context pulumi_token_${{CF_REPO_NAME}} --decrypt --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
+  JinjaMyTemplates:
+    title: "Interpolate some files"
+    stage: prepare
+    image: python:latest
+    commands:
+      - pip install j2cli
+      - j2 -o Pulumi.yaml Pulumi.yaml
   DryRun:
     title: "Run a preview"
     stage: build
     image: pulumi/pulumi
     commands:
-      - echo ${AWS_ACCESS_KEY_ID}
-      - echo ${PULUMI_ACCESS_TOKEN}
+      - echo ${{AWS_ACCESS_KEY_ID}}
+      - echo ${{PULUMI_ACCESS_TOKEN}}
       - pulumi preview --stack dev --non-interactive
   ApprovalRequest:
     title: "Ask for a validation or validate by default"
