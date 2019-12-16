@@ -34,7 +34,7 @@ steps:
     image: python:latest
     commands:
       - pip install j2cli
-      - j2 -o '${{CF_REPO_NAME}}/Pulumi.yaml' '${{CF_REPO_NAME}}/Pulumi.yaml'
+      - cd '${{main_clone}}' && j2 -o Pulumi.yaml Pulumi.yaml
   DryRun:
     title: "Run a preview"
     stage: build
