@@ -19,7 +19,7 @@ steps:
         title: "Add the dependencies"
         image: pulumi/pulumi
         commands:
-          - npm install && npm rebuild
+          - rm -rf ~/.node-gyp && rm -rf ~/node_modules && rm -rf node_modules && npm install && npm rebuild
       ExportConfiguration:
         title: "Prepare the context of your pipeline"
         image: codefresh/cli
