@@ -60,5 +60,5 @@ typings/
 # next.js build output
 .next
 
-#1Password cli
+#1Password cli cache
 !
