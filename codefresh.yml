@@ -19,7 +19,7 @@ steps:
         title: "Add the dependencies"
         image: pulumi/pulumi
         commands:
-          - npm install
+          - npm install 
       ExportConfiguration:
         title: "Prepare the context of your pipeline"
         image: codefresh/cli
@@ -28,7 +28,7 @@ steps:
           - cf_export AWS_SECRET_ACCESS_KEY=$(codefresh get context aws_personal_dev --decrypt --output=json | jq -r '.spec.data.AWS_SECRET_ACCESS_KEY')
           - cf_export PULUMI_ACCESS_TOKEN=$(codefresh get context pulumi_token_${{CF_REPO_NAME}} --decrypt --output=json | jq -r '.spec.data.PULUMI_ACCESS_TOKEN')
   JinjaMyTemplates:
-    title: "Interpolate some files"
+    title: "Interpolate specified files"
     stage: prepare
     image: python:latest
     commands:
