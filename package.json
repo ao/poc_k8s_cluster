@@ -6,7 +6,7 @@
         "@pulumi/eks": "0.18.18",
         "@pulumi/kubernetes": "1.4.0",
         "@pulumi/pulumi": "1.7.1",
-        "@types/node": "latest",
+        "@types/node": "^8.0.0",
         "codefresh": "^0.36.0"
     }
 }
