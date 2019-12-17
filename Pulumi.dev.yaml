@@ -1,4 +1,2 @@
 config:
-  aws:region:
-    description: The AWS region to deploy into
-    default: eu-west-1
+  aws:region: eu-west-1
