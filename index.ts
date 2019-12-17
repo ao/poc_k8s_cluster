@@ -4,18 +4,23 @@ import * as awsx from "@pulumi/awsx";
 import * as eks from "@pulumi/eks";
 import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
+import * as path from 'path'
 
-const name = "helloworld";
 
+const name = path.basename(__dirname);
 // Create an EKS cluster with non-default configuration
-const vpc = new awsx.Network("vpc", { usePrivateSubnets: false });
+const vpc = new awsx.ec2.Vpc(name, {
+    cidrBlock: "10.0.0.0/26",
+    numberOfAvailabilityZones: 2,
+    subnets: [{ type: "public" }]
+});
 const cluster = new eks.Cluster(name, {
-    vpcId: vpc.vpcId,
-    subnetIds: vpc.subnetIds,
+    vpcId: vpc.id,
+    subnetIds: vpc.publicSubnetIds,
     instanceType: "t2.medium",
-    desiredCapacity: 2,
-    minSize: 1,
-    maxSize: 2,
+    desiredCapacity: 1,
+    minSize:1,
+    maxSize: 4,
     storageClasses: "gp2",
     deployDashboard: true,
 });
