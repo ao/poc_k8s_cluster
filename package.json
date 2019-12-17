@@ -1,11 +1,11 @@
 {
-    "name": "aws-ts-eks-hello-world",
+    "name": "poc_k8s_cluster",
     "dependencies": {
-        "@pulumi/aws": "6.12.1",
-        "@pulumi/awsx": "6.12.1",
-        "@pulumi/eks": "6.12.1",
-        "@pulumi/kubernetes": "6.12.1",
-        "@pulumi/pulumi": "6.12.1",
+        "@pulumi/aws": "1.16.0",
+        "@pulumi/awsx": "0.18.14",
+        "@pulumi/eks": "0.18.18",
+        "@pulumi/kubernetes": "1.4.0",
+        "@pulumi/pulumi": "1.7.1",
         "@types/node": "latest",
         "codefresh": "^0.36.0"
     }
