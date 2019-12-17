@@ -19,7 +19,7 @@ steps:
         title: "Add the dependencies"
         image: pulumi/pulumi:v1.7.1
         commands:
-          - npm install && npm rebuild --unsafe-perm --build-from-source
+          - npm install
       ExportConfiguration:
         title: "Prepare the context of your pipeline"
         image: codefresh/cli

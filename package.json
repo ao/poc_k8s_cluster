@@ -1,12 +1,13 @@
 {
     "name": "poc_k8s_cluster",
+    "version": "0.1.0",
     "dependencies": {
         "@pulumi/aws": "1.16.0",
         "@pulumi/awsx": "0.18.14",
         "@pulumi/eks": "0.18.18",
         "@pulumi/kubernetes": "1.4.0",
         "@pulumi/pulumi": "1.7.1",
-        "@types/node": "^8.0.0",
+        "@types/node": "latest",
         "codefresh": "^0.36.0"
     }
 }
