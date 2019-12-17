@@ -17,7 +17,7 @@ steps:
     steps:
       AddDependencies:
         title: "Add the dependencies"
-        image: pulumi/pulumi
+        image: pulumi/pulumi:v1.7.1
         commands:
           - npm install && npm rebuild --unsafe-perm --build-from-source
       ExportConfiguration:
@@ -37,7 +37,7 @@ steps:
   DryRun:
     title: "Run a preview"
     stage: build
-    image: pulumi/pulumi
+    image: pulumi/pulumi:v1.7.1
     commands:
       - pulumi preview --stack dev --non-interactive
   ApprovalRequest:
@@ -50,7 +50,7 @@ steps:
   RunPulumi:
     title: Deploying
     stage: deploy
-    image: pulumi/pulumi
+    image: pulumi/pulumi:v1.7.1
     commands: 
       - pulumi stack select dev --non-interactive
       - pulumi stack --non-interactive
