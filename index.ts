@@ -7,7 +7,8 @@ import * as pulumi from "@pulumi/pulumi";
 import * as path from 'path'
 
 
-const name = path.basename(__dirname);
+const name = path.basename(__dirname).replace("_", "-");
+
 // Create an EKS cluster with non-default configuration
 const vpc = new awsx.ec2.Vpc(name, {
     cidrBlock: "10.0.0.0/26",
