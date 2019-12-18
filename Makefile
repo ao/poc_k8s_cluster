@@ -4,35 +4,51 @@ SHELL := /bin/bash
 PROJECT="poc_k8s_cluster"
 REPO_NAME=$(shell basename `git rev-parse --show-toplevel`)
 
-.PHONY: update new_pulumi_token codefresh_local_context codefresh_aws_account prog run
-.PHONY: setup_local_deps update_dev codefresh_shared_secret
+.PHONY: update codefresh_local_context codefresh_aws_account_creds pulumi_stack force_pulumi_stack new_pulumi_token
+.PHONY: setup_local_deps update_dev cleanup
 
 
 
 ### Functions
 define setup_local_deps
-	LOCAL_DEPS=nodejs; \
+	PACKAGED_LOCAL_DEPS="nodejs kubectl"; \
 	set -e; \
 	unameOut=$(uname -s); \
 	case ${unameOut} in \
 		Linux*)     machine=linux;; \
-		Darwin*)    machine=mac;; \
+		Darwin*)    machine=darwin;; \
 		*)          machine="UNKNOWN:${unameOut}";; \
 	esac; \
-	if [[ ${machine} == "mac" ]]; then \
-		brew update && brew install -f ${LOCAL_DEPS}; \
+	if [[ ${machine} == "darwin" ]]; then \
+		brew update && brew install -f ${PACKAGED_LOCAL_DEPS}; \
 	else \
 		YUM_CMD=$(which yum); \
 		APT_GET_CMD=$(which apt-get); \
 		if [[ ! -z ${YUM_CMD} ]]; then \
-			yum update -y && yum install -y ${LOCAL_DEPS}; \
+			cat <<EOF > /etc/yum.repos.d/kubernetes.repo \
+			[kubernetes] \
+			name=Kubernetes \
+			baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64 \
+			enabled=1 \
+			gpgcheck=1 \
+			repo_gpgcheck=1 \
+			gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg \
+			EOF; \
+			yum update -y && yum install -y ${PACKAGED_LOCAL_DEPS}; \
 		elif [[ ! -z ${APT_GET_CMD} ]]; then \
-			apt-get update -y && apt-get install -y ${LOCAL_DEPS}; \
+			curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -; \
+			echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list; \
+			apt-get update -y && apt-get install -y ${PACKAGED_LOCAL_DEPS}; \
 		else \
-			echo "error can't install packages ${LOCAL_DEPS}"; \
+			echo "ERROR - can't install packages ${PACKAGED_LOCAL_DEPS}"; \
 			exit 1; \
 		fi; \
 	fi; \
+	curl -o aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.14.6/2019-08-22/bin/${machine}/amd64/aws-iam-authenticator; \
+	chmod +x ./aws-iam-authenticator; \
+	mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH="$HOME/bin${PATH:+:${PATH}}" && rm -rf ./aws-iam-authenticator; \
+	echo 'PATH="$HOME/bin${PATH:+:${PATH}}"' >> ~/.bash_profile; \
+	echo "aws-iam-authenticator: $(aws-iam-authenticator version)"; \
 	if [[ $(jq --version | sed "s/^.*jq-\([^;]*\).*/\1/") < 1.6 ]]; then \
 		sudo wget --no-check-certificate https://raw.githubusercontent.com/stedolan/jq/master/sig/jq-release.key -O /tmp/jq-release.key && \
 		sudo wget --no-check-certificate https://raw.githubusercontent.com/stedolan/jq/master/sig/v1.6/jq-linux64.asc -O /tmp/jq-linux64.asc && \
@@ -47,13 +63,39 @@ define setup_local_deps
 	fi;
 endef
 
+define cleanup_local
+	set -e; \
+	unameOut=$(uname -s); \
+	case ${unameOut} in \
+		Linux*)     machine=linux;; \
+		Darwin*)    machine=darwin;; \
+		*)          machine="UNKNOWN:${unameOut}";; \
+	esac; \
+	if [[ ${machine} == "darwin" ]]; then \
+		brew cleanup; \
+	else \
+		YUM_CMD=$(which yum); \
+		APT_GET_CMD=$(which apt-get); \
+		if [[ ! -z ${YUM_CMD} ]]; then \
+			yum clean all; \
+		elif [[ ! -z ${APT_GET_CMD} ]]; then \
+			apt-get clean; \
+		else \
+			echo "ERROR - can't cleanup"; \
+			exit 1; \
+		fi; \
+	fi; \
+	rm -rf node_modules;
+endef
+
 
 
 ###
 ### Main targets
 ###
-update: setup_local_deps
-	$(MAKE) update_d ev
+.SILENT:
+update: cleanup setup_local_deps
+	$(MAKE) update_dev
 
 # Create and also updates a local context. Account/team specific
 .SILENT:
@@ -100,8 +142,11 @@ new_pulumi_token: codefresh_local_context
 ###
 ### Sub-targets: for makefile internal calls only
 ###
-# Invoke a defined function
+# Invoke the related defined function; function being used here for easier bash scripting
 setup_local_deps: ; @$(value setup_local_deps)
 
 update_dev:
 	npm install
+
+# Invoke the related defined function; function being used here for easier bash scripting
+cleanup: ; @$(value cleanup_local)

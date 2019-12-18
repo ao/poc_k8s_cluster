@@ -1,4 +1,4 @@
-name: {{ CF_REPO_NAME }}
+name: poc_k8s_cluster
 description: EKS cluster + namespace + Nginx
 runtime: nodejs
 description: EKS cluster example
